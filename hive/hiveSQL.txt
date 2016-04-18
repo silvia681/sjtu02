@@ -1,0 +1,213 @@
+﻿CREATE TABLE stg_price(
+brand                   string,
+factory                 string,
+serial                  string,
+yeartype                string,
+volumn                  string,
+carstyle                string,
+guide_price             string,
+bare_price              string,
+buy_tax                 string,
+deal_price              string,
+comm_ins                string,
+use_tax                 string,
+trff_tax                string,
+license_fee             string,
+total_price             string,
+invoce_flg              string,
+promotion               string,
+deal_date               string,
+post_date               string,
+username                string,
+prov                    string,
+city                    string,
+sales_name              string,
+sales_telno             string,
+sales_addr              string,
+comment                 string,
+curl_timestamp          string,
+url                     string,
+data_id                 string
+)
+PARTITIONED BY (pt string)
+ROW FORMAT DELIMITED;
+
+CREATE TABLE dim_brand(
+brand_name              string,
+brand_code              string,
+data_id                 string
+)
+PARTITIONED BY (pt string)
+ROW FORMAT DELIMITED;
+
+CREATE TABLE dim_city(
+prov_name              string,
+prov_code              string,
+city_name              string,
+city_code              string,
+data_id                string
+)
+PARTITIONED BY (pt string)
+ROW FORMAT DELIMITED;
+
+CREATE TABLE rpt_price(
+brand_name              string,
+brand_code              string,
+factory                 string,
+serial                  string,
+yeartype                string,
+volumn                  string,
+carstyle                string,
+guide_price             string,
+bare_price              string,
+buy_tax                 string,
+deal_price              string,
+comm_ins                string,
+use_tax                 string,
+trff_tax                string,
+license_fee             string,
+total_price             string,
+invoce_flg              string,
+promotion               string,
+deal_date               string,
+post_date               string,
+username                string,
+prov_name               string,
+prov_code               string,
+city_name               string,
+city_code               string,
+sales_name              string,
+sales_telno             string,
+sales_addr              string,
+comment                 string,
+curl_timestamp          string,
+url                     string,
+data_id                 string,
+used_month              string,
+year_discount           string
+)
+PARTITIONED BY (pt string)
+ROW FORMAT DELIMITED;
+
+LOAD DATA LOCAL INPATH '/home/hdp/team02/team002_v2/demo/output/page_output/20160411' OVERWRITE INTO TABLE stg_price PARTITION (pt=20160411);
+
+INSERT OVERWRITE TABLE dim_brand PARTITION (pt=20160411)
+SELECT brand,
+CASE brand 
+WHEN '奔驰' THEN 'benchi' 
+WHEN '大众' THEN 'dazhong' 
+WHEN '现代' THEN 'xiandai' 
+WHEN '奥迪' THEN 'aodi' 
+ELSE 'brand' 
+END brand_code,
+data_id
+FROM stg_price;
+
+INSERT OVERWRITE TABLE dim_city PARTITION (pt=20160411)
+SELECT prov,
+(CASE prov 
+WHEN '　上海市' THEN 'shanghai' 
+WHEN '　广东省' THEN 'guangdong' 
+WHEN '　北京市' THEN 'beijing' 
+WHEN '　山东省' THEN 'shandong' 
+ELSE 'default' 
+END) prov_code,
+city,
+(CASE city 
+WHEN '　　上海市' THEN 'shanghai' 
+WHEN '　　广州市' THEN 'guangzhou' 
+WHEN '　　深圳市' THEN 'shenzhen' 
+WHEN '　　北京市' THEN 'beijing' 
+WHEN '　　济南市' THEN 'jinan' 
+ELSE 'default' 
+END) city_code,
+data_id
+FROM stg_price;
+
+ADD FILE /home/hdp/team02/calDepre.py;
+
+CREATE VIEW tmp (data_id, deal_date, used_month, year_discount)
+AS
+SELECT TRANSFORM(data_id, deal_date)
+USING 'python calDepre.py'
+AS (data_id, deal_date, used_month, year_discount)
+FROM stg_price
+WHERE data_id IS NOT NULL;
+
+INSERT OVERWRITE TABLE rpt_price PARTITION (pt=20160411)
+SELECT
+stg_price.brand,
+(CASE stg_price.brand 
+WHEN 'Jeep' THEN 'jeep'
+WHEN '北京' THEN 'beijing'
+WHEN '北汽幻速' THEN 'beiqihuansu'
+WHEN '大众' THEN 'dazhong'
+WHEN '奔驰' THEN 'benchi'
+WHEN '奥迪' THEN 'aodi'
+WHEN '宝马' THEN 'baoma'
+WHEN '斯巴鲁' THEN 'sibalu'
+WHEN '日产' THEN 'richan'
+WHEN '比亚迪' THEN 'biyadi'
+WHEN '江淮' THEN 'jianghuai'
+WHEN '法拉利' THEN 'falali'
+WHEN '特斯拉' THEN 'tesila'
+WHEN '猎豹汽车' THEN 'liebao'
+WHEN '现代' THEN 'xiandai'
+WHEN '福特' THEN 'fute'
+WHEN '荣威' THEN 'rongwei'
+WHEN '菲亚特' THEN 'feiyate'
+WHEN '观致' THEN 'guanzhi'
+WHEN '路虎' THEN 'luhu'
+WHEN '道奇' THEN 'daoqi'
+WHEN '铃木' THEN 'lingmu'
+WHEN '雷克萨斯' THEN 'leikesasi'
+WHEN '雷诺' THEN 'leinuo'
+ELSE 'brand' 
+END) brand_code,
+stg_price.factory,
+stg_price.serial,
+stg_price.yeartype,
+stg_price.volumn,
+stg_price.carstyle,
+stg_price.guide_price,
+stg_price.bare_price,
+stg_price.buy_tax,
+stg_price.deal_price,
+stg_price.comm_ins,
+stg_price.use_tax,
+stg_price.trff_tax,
+stg_price.license_fee,
+stg_price.total_price,
+stg_price.invoce_flg,
+stg_price.promotion,
+stg_price.deal_date,
+stg_price.post_date,
+stg_price.username,
+stg_price.prov,
+(CASE stg_price.prov 
+WHEN '　上海市' THEN 'shanghai' 
+WHEN '　广东省' THEN 'guangdong' 
+WHEN '　北京市' THEN 'beijing' 
+WHEN '　山东省' THEN 'shandong' 
+ELSE 'default' 
+END) prov_code,
+stg_price.city,
+(CASE stg_price.city 
+WHEN '　　上海市' THEN 'shanghai' 
+WHEN '　　广州市' THEN 'guangzhou' 
+WHEN '　　深圳市' THEN 'shenzhen' 
+WHEN '　　北京市' THEN 'beijing' 
+WHEN '　　济南市' THEN 'jinan' 
+ELSE 'default' 
+END) city_code,
+stg_price.sales_name,
+stg_price.sales_telno,
+stg_price.sales_addr,
+stg_price.comment,
+stg_price.curl_timestamp,
+stg_price.url,
+tmp.data_id,
+tmp.used_month,
+tmp.year_discount
+FROM tmp
+LEFT JOIN stg_price ON (tmp.data_id = stg_price.data_id);
