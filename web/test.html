@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta charset="utf-8">
+	<title>Feigu | SJTU</title>
+	<link href="http://cdn.bootcss.com/bootstrap/2.3.2/css/bootstrap-responsive.css" rel="stylesheet">
+	<link href="http://cdn.bootcss.com/bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet">
+	<link href="http://cdn.bootcss.com/bootstrap/2.3.2/css/bootstrap.css" rel="stylesheet">
+	<link href="http://cdn.bootcss.com/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+	<script src="http://cdn.bootcss.com/jquery/3.0.0-beta1/jquery.js"></script>
+	<script src="http://cdn.bootcss.com/bootstrap/2.3.2/js/bootstrap.js"></script>
+	<script src="http://cdn.bootcss.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
+	<link href="http://cdn.bootcss.com/iCheck/1.0.2/skins/all.css" rel="stylesheet">
+	<link href="http://cdn.bootcss.com/iCheck/1.0.1/skins/minimal/green.css" rel="stylesheet">
+	<script src="http://cdn.bootcss.com/iCheck/1.0.2/icheck.js"></script>
+
+
+	<link href="http://www.bootcss.com/p/buttons/css/buttons.css" rel="stylesheet">
+
+<style type="text/css">
+.button{
+	font-family: "DFKai-SB";
+	font-size: 16px;
+}
+/*.input-large{ 
+	font-family: "SimSun";
+	font-size: 16px;
+}*/
+</style>
+<script>
+
+var cache;
+var brand, price, city, minp, maxp;
+
+function selectCity(city){
+	var array = eval("("+cache+")");
+	$("tbody").empty();
+	for(var i = 0; i < array.length; i++){
+		var obj = array[i];
+		
+		var cityname = obj['rpt_price.prov_name']+obj['rpt_price.city_name'];
+		if(city == "全国" || cityname.indexOf(city) > 0){
+			$("tbody").append(
+				"<tr class='success'>"
+					+"<td>"+(i+1)+"</td>"
+					+"<td>"+obj['rpt_price.brand_name']+" "+obj['rpt_price.serial']+" "+obj['rpt_price.yeartype']+" "+obj['rpt_price.volumn']+" "+obj['rpt_price.carstyle']+"</td>"
+					+"<td>"+obj['rpt_price.prov_name']+obj['rpt_price.city_name']+"</td>"
+					+"<td>"+obj['rpt_price.deal_date']+"</td>"
+					+"<td>"+obj['rpt_price.post_date']+"</td>"
+					+"<td>"+obj['rpt_price.guide_price']/10000+"万</td>"
+					+"<td>"+obj['rpt_price.total_price']/10000+"万</td>"
+					+"<td>"+obj['rpt_price.year_discount']+"</td>"
+					+"<td><a href='http://jiage.autohome.com.cn/price/carlist/p-18179'>车主之家</a></td>"
+					+"</tr>"
+			);
+		}
+	}
+}
+
+function selectBrand(brand){
+
+}
+
+function filter(){
+	var array = eval("("+cache+")");
+	$("tbody").empty();
+	for(var i = 0; i < array.length; i++){
+		var obj = array[i];
+		
+		var cityname = obj['rpt_price.prov_name']+obj['rpt_price.city_name'];
+		var brandname = obj['rpt_price.brand_name']+" "+obj['rpt_price.serial']+" "+obj['rpt_price.yeartype']+" "+obj['rpt_price.volumn']+" "+obj['rpt_price.carstyle'];
+		var soldprice = obj['rpt_price.total_price']/10000;
+	//	console.log(city+" "+brand+" "+price);
+		if((city == "全国" || cityname.indexOf(city) >= 0) && 
+				(brand == "品牌不限" || brandname.indexOf(brand) >= 0) &&
+				(price == "价格不限" || (minp <= soldprice && maxp >= soldprice))){
+			$("tbody").append(
+				"<tr class='success'>"
+					+"<td>"+(i+1)+"</td>"
+					+"<td>"+obj['rpt_price.brand_name']+" "+obj['rpt_price.serial']+" "+obj['rpt_price.yeartype']+" "+obj['rpt_price.volumn']+" "+obj['rpt_price.carstyle']+"</td>"
+					+"<td>"+obj['rpt_price.prov_name']+obj['rpt_price.city_name']+"</td>"
+					+"<td>"+obj['rpt_price.deal_date']+"</td>"
+					+"<td>"+obj['rpt_price.post_date']+"</td>"
+					+"<td>"+obj['rpt_price.guide_price']/10000+"万</td>"
+					+"<td>"+obj['rpt_price.total_price']/10000+"万</td>"
+					+"<td>"+obj['rpt_price.year_discount']+"</td>"
+					+"<td><a href='http://jiage.autohome.com.cn/price/carlist/p-18179'>车主之家</a></td>"
+					+"</tr>"
+			);
+		}
+	}
+}
+
+function displayAll(){
+	$.ajax({
+			url:"FeiguHandler", 
+			success: onsuccess
+	});
+}
+
+function onsuccess(data, status){
+	console.log(status);
+	cache = data;
+	display(data);
+}
+
+function display(response){
+	var array = eval("("+response+")");
+	$("tbody").empty();
+	for(var i = 0; i < array.length; i++){
+		var obj = array[i];
+			
+		$("tbody").append(
+			"<tr class='success'>"
+				+"<td>"+(i+1)+"</td>"
+				+"<td>"+obj['rpt_price.brand_name']+" "+obj['rpt_price.serial']+" "+obj['rpt_price.yeartype']+" "+obj['rpt_price.volumn']+" "+obj['rpt_price.carstyle']+"</td>"
+				+"<td>"+obj['rpt_price.prov_name']+obj['rpt_price.city_name']+"</td>"
+				+"<td>"+obj['rpt_price.deal_date']+"</td>"
+				+"<td>"+obj['rpt_price.post_date']+"</td>"
+				+"<td>"+obj['rpt_price.guide_price']/10000+"万</td>"
+				+"<td>"+obj['rpt_price.total_price']/10000+"万</td>"
+				+"<td>"+obj['rpt_price.year_discount']+"</td>"
+				+"<td><a href='http://jiage.autohome.com.cn/price/carlist/p-18179'>车主之家</a></td>"
+				+"</tr>"
+		);
+	//	for(var k in obj){
+	//		console.log(k+":"+obj[k]);
+	//	}
+	}
+}
+
+$(document).ready(function(){
+	console.log("ready");
+	displayAll();
+	brand="品牌不限";
+	price="价格不限";
+	city="全国";
+
+	$("button").click(function(e){
+		console.log("click "+e.target.id);
+		selectCity(e.target.id);
+		var tokens = e.target.id.split("-");
+		if(tokens[0] == 'city'){
+			city = tokens[1];
+	//		selectCity(city);
+		}
+		if(tokens[0] == 'price'){
+			if(tokens[1] == '价格不限'){
+				price = tokens[1];
+			}else if(tokens.length == 3){
+				price = '1';
+				minp = tokens[1];
+				maxp = tokens[2];
+			}else{
+				price = '1';
+				if(tokens[1] == 5){
+					maxp = 5;
+					minp = 0;
+				}else{
+					minp = tokens[1];
+					maxp = 1000000000000;
+				}
+			}
+		}
+		if(tokens[0] == 'brand'){
+			brand = tokens[1];
+	//		selectBrand(brand);
+		}
+		filter();
+	});
+});
+</script>
+
+
+
+</head>
+
+<body>
+<br>
+<br>
+
+<div class="container">
+	<div class="row">
+		<div class="span12">
+			<div class="text" style="text-align:center">
+				<font face="DFKai-SB" size="6">
+				<strong> 二手车比价系统 &nbsp;by T2.SJTU</strong>
+				</font>
+			</div>
+<br>
+<br>
+			<!-- <input type="checkbox">
+			<input type="checkbox" checked> -->
+			<i class="icon-tags"></i> &nbsp;
+		  	<button class="button button-pill button-small" id="brand-品牌不限">
+		  		不 限
+		  	</button>
+		  	<button class="button button-pill button-small" id="brand-奥迪">
+		  		奥 迪
+		  	</button>
+		  	<button class="button button-pill button-small" id="brand-大众">
+		  		大 众
+		  	</button>
+		  	<button class="button button-pill button-small" id="brand-宝马">
+		  		宝 马
+		  	</button>
+		  	<button class="button button-pill button-small" id="brand-奔驰">
+		  		奔 驰
+		  	</button>
+		  	<button class="button button-pill button-small" id="brand-本田">
+		  		本 田
+		  	</button>
+		  	<button class="button button-pill button-small" id="brand-福特">
+		  		福 特
+		  	</button>
+		  	<button class="button button-pill button-small" id="brand-丰田">
+		  		丰 田
+		  	</button>
+		  	
+<br>
+<br>
+			<i class="icon-home"></i> &nbsp;
+			<button class="button button-pill button-small" id="city-全国">
+		  		全 国
+		  	</button>
+		  	<button class="button button-pill button-small" id="city-上海">
+		  		上 海
+		  	</button>
+		  	<button class="button button-pill button-small" id="city-北京">
+		  		北 京
+		  	</button>
+		  	<button class="button button-pill button-small" id="city-重庆">
+		  		重 庆
+		  	</button>
+		  	<button class="button button-pill button-small" id="city-成都">
+		  		成 都
+		  	</button>
+		  	<button class="button button-pill button-small" id="city-南京">
+		  		南 京
+		  	</button>
+		  	<button class="button button-pill button-small" id="city-青岛">
+		  		青 岛
+		  	</button>
+<br>
+<br>
+			<i class="icon-shopping-cart"></i> &nbsp;
+			<button class="button button-pill button-small" id="price-价格不限">
+		  		不 限
+		  	</button>
+		  	<button class="button button-pill button-small" id="price-5">
+		  		5万以下
+		  	</button>
+		  	<button class="button button-pill button-small" id="price-5-15">
+		  		5-15万
+		  	</button>
+		  	<button class="button button-pill button-small" id="price-15-30">
+		  		15万-30万
+		  	</button>
+		  	<button class="button button-pill button-small" id="price-30-60">
+		  		30万-60万
+		  	</button>
+		  	<button class="button button-pill button-small" id="price-60">
+		  		60万以上
+		  	</button>
+<br>
+<br>
+			<form class="form-search">
+				<input class="input-large search-query" type="text" placeholder="请输入关键词，如：大众 成都" /> 
+				<button type="submit" class="btn">
+					<font face="DFKai-SB" size="3">
+						查 找
+					</font>
+				</button>
+			</form>
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>
+							#
+						</th>
+						<th>
+							车型
+						</th>
+						<th>
+							购买地区
+						</th>
+						<th>
+							购车时间
+						</th>
+						<th>
+							发表日期
+						</th>
+						<th>
+							新车价
+						</th>
+						<th>
+							售价
+						</th>
+						<th>
+							折旧率
+						</th>
+						<th>
+							购买链接
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+				<!--
+					<tr class="success">
+						<td>
+							1
+						</td>
+						<td>
+							日产 阳光 2014款 1.5XV CVT尊贵版
+						</td>
+						<td>
+							2015-01-01
+						</td>
+						<td>
+							2015-01-27
+						</td>
+						<td>
+							11.28万
+						</td>
+						<td>
+							11.34万
+						</td>
+						<td>
+							50.44%
+						</td>
+						<td>
+							<a href="http://jiage.autohome.com.cn/price/carlist/p-18179"  target="_blank">车主之家</a>
+						</td>
+					</tr>
+					-->
+					<tr class="warning">
+						<!-- <td>
+							3
+						</td>
+						<td>
+							TB - Monthly
+						</td>
+						<td>
+							03/04/2012
+						</td>
+						<td>
+							Pending
+						</td> -->
+					</tr>
+					<tr class="info">
+						<!-- <td>
+							4
+						</td>
+						<td>
+							TB - Monthly
+						</td>
+						<td>
+							04/04/2012
+						</td>
+						<td>
+							Call in to confirm
+						</td> -->
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>
